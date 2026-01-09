@@ -1,19 +1,25 @@
 const express = require("express");
+require("dotenv").config();
+const db = require("./config/database");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-// middleware
 app.use(express.json());
 
-// ruta base
-app.get("/", (req, res) => {
-  res.json({ mensaje: "API de gastos funcionando 🚀" });
-});
+// test DB
+(async () => {
+  try {
+    const connection = await db.getConnection();
+    console.log("Conectado a MySQL correctamente");
+    connection.release();
+  } catch (error) {
+    console.error("Error conectando a MySQL:", error.message);
+  }
+})();
 
-// health check (muy profesional)
-app.get("/health", (req, res) => {
-  res.json({ status: "ok" });
+app.get("/", (req, res) => {
+  res.json({ mensaje: "API de gastos con MySQL funcionando 🚀" });
 });
 
 app.listen(PORT, () => {
