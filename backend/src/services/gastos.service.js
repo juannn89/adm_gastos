@@ -13,6 +13,17 @@ exports.obtenerTodos = async () => {
   return rows;
 };
 
+// Obtiene un gasto por su ID
+exports.obtenerPorId = async (id) => {
+  // Ejecuta una consulta SELECT con un placeholder para el ID
+  const [rows] = await db.query(
+    "SELECT * FROM gastos WHERE id = ?",
+    [id]
+  ); 
+  // Devuelve el primer gasto encontrado o null si no existe
+  return rows[0] || null;
+};
+
 // Crea un nuevo gasto en la base de datos
 exports.crear = async (data) => {
   // Extrae los campos necesarios del objeto recibido
@@ -34,4 +45,30 @@ exports.crear = async (data) => {
     categoria,
     fecha,
   };
+};
+
+// Actualiza un gasto existente en la base de datos
+exports.actualizar = async (id, data) => {
+  // Extrae los campos necesarios del objeto recibido
+  const [result] = await db.query(
+    `UPDATE gastos 
+    SET ? 
+    WHERE id = ?`,
+    [data, id]
+  );
+  // Valida si se actualizó algún registro
+  if (result.affectedRows === 0) return null; // No se encontró el gasto para actualizar
+  // Retorna el gasto actualizado
+  return { id, ...data };
+};
+
+// Elimina un gasto de la base de datos por su ID
+exports.eliminar = async (id) => {
+  // Ejecuta la consulta DELETE con un placeholder para el ID
+  const [result] = await db.query(
+    "DELETE FROM gastos WHERE id = ?",
+    [id]
+  );
+  // Retorna true si se eliminó algún registro, false si no
+  return result.affectedRows > 0;
 };
