@@ -1,12 +1,18 @@
-// Middleware global para manejo de errores en Express
-// Se ejecuta cuando ocurre un error y se llama next(error)
+const { ZodError } = require("zod");
+
 module.exports = (err, req, res, next) => {
-  // Muestra el error completo en la consola del servidor
   console.error(err);
 
-  // Responde al cliente con un error genérico
-  // Status 500 indica un error interno del servidor
-  res.status(500).json({
-    error: "Error interno del servidor",
+  // Errores de validación (Zod)
+  if (err instanceof ZodError) {
+    return res.status(400).json({
+      error: "Datos inválidos",
+      detalles: err.issues.map(issue => issue.message),
+    });
+  }
+
+  // Error genérico
+  return res.status(500).json({
+    error: err.message || "Error interno del servidor",
   });
 };
